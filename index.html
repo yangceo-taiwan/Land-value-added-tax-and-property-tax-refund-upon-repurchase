@@ -51,7 +51,7 @@
         }
         input[type="number"]:focus { border-color: var(--brand-gold); outline: none; box-shadow: 0 0 0 3px rgba(197, 160, 101, 0.2); }
 
-        .unit-tag { font-size: 0.9rem; color: #888; font-weight: normal; margin-left: 5px; }
+        .unit-tag { font-size: 0.9rem; color: #fff; background:var(--brand-gold); padding:2px 8px; border-radius:4px; font-weight: normal; margin-left: 5px; }
 
         .btn-calc {
             width: 100%; padding: 15px; background: var(--brand-dark); color: white; border: none; border-radius: 8px;
@@ -128,23 +128,23 @@
 
         <div class="card">
             <div class="card-header">
-                <div>1. 房地合一稅 (新制)<span class="unit-tag">單位：萬元</span></div>
+                <div>1. 房地合一稅 (新制)<span class="unit-tag">萬元</span></div>
                 <span class="tag tag-sell">全額/比例退稅</span>
             </div>
             
             <div class="input-group">
                 <label>賣出總價 (萬元)</label>
-                <input type="number" v-model.number="new_sell_price" placeholder="請輸入賣出成交價">
+                <input type="number" v-model.number="new_sell_price" placeholder="例：1500">
             </div>
             
             <div class="input-group">
                 <label>重購總價 (萬元)</label>
-                <input type="number" v-model.number="new_buy_price" placeholder="請輸入買入成交價">
+                <input type="number" v-model.number="new_buy_price" placeholder="例：2000">
             </div>
             
             <div class="input-group">
                 <label>已繳納(或應繳) 稅額 (萬元)</label>
-                <input type="number" v-model.number="paid_tax" placeholder="請輸入稅額">
+                <input type="number" v-model.number="paid_tax" placeholder="例：45">
             </div>
 
             <button class="btn-calc" @click="calcNew">試算退稅金額</button>
@@ -161,32 +161,32 @@
 
         <div class="card">
             <div class="card-header">
-                <div>2. 土地增值稅 (舊制)<span class="unit-tag">單位：元</span></div>
+                <div>2. 土地增值稅 (舊制)<span class="unit-tag">萬元</span></div>
                 <span class="tag tag-buy">以小換大</span>
             </div>
 
             <div class="input-group">
-                <label>賣出土地 - 公告現值總額 (元)</label>
-                <input type="number" v-model.number="old_land_val" placeholder="移轉現值總額">
+                <label>賣出土地 - 公告現值總額 (萬元)</label>
+                <input type="number" v-model.number="old_land_val" placeholder="例：300 (移轉現值總額)">
             </div>
             
             <div class="input-group">
-                <label>賣出土地 - 已繳納土增稅 (元)</label>
-                <input type="number" v-model.number="old_land_tax" placeholder="稅單金額">
+                <label>賣出土地 - 已繳納土增稅 (萬元)</label>
+                <input type="number" v-model.number="old_land_tax" placeholder="例：20 (稅單金額)">
             </div>
 
             <div class="input-group">
-                <label>重購土地 - 公告現值總額 (元)</label>
-                <input type="number" v-model.number="new_land_val" placeholder="買入當年公告現值 × 面積">
+                <label>重購土地 - 公告現值總額 (萬元)</label>
+                <input type="number" v-model.number="new_land_val" placeholder="例：400 (買入當年公告現值 × 面積)">
             </div>
 
             <button class="btn-calc" @click="calcOld">試算退稅金額</button>
 
             <div class="result-box" v-if="old_refund !== null">
                 <div class="result-title">可退稅金額</div>
-                <div class="result-value">{{ formatMoney(old_refund) }} 元</div>
+                <div class="result-value">{{ formatWan(old_refund) }} 萬元</div>
                 <p style="font-size:0.9rem; color:#666; margin-top:10px;" v-if="old_refund === 0">
-                    不符合退稅資格 (重購現值不足以扣抵)
+                    不符合退稅資格<br>(原因：重購現值 不足扣抵 賣出淨值)
                 </p>
             </div>
         </div>
@@ -255,26 +255,20 @@
                 new_refund: null,
                 new_refund_ratio: 0,
 
-                // 舊制 (單位：元)
+                // 舊制 (單位：萬元)
                 old_land_val: null,
                 old_land_tax: null,
                 new_land_val: null,
                 old_refund: null
             },
             methods: {
-                // 格式化千分位 (元)
-                formatMoney(num) {
-                    if (num === null) return 0;
-                    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                },
-                // 格式化萬元 (保留小數點)
+                // 格式化萬元 (保留小數點後兩位，若整數則無小數)
                 formatWan(num) {
                     if (num === null) return 0;
-                    // 如果有小數，保留兩位；如果是整數，不顯示小數
                     return parseFloat(num.toFixed(2)).toLocaleString();
                 },
                 calcNew() {
-                    // 單位皆為萬元，邏輯不變
+                    // 單位皆為萬元
                     if (!this.new_sell_price || !this.new_buy_price || !this.paid_tax) {
                         alert("請填寫所有房地合一稅欄位 (單位：萬元)");
                         return;
@@ -287,12 +281,16 @@
                     this.new_refund = this.paid_tax * ratio;
                 },
                 calcOld() {
+                    // 單位皆為萬元
                     if (!this.old_land_val || !this.old_land_tax || !this.new_land_val) {
-                        alert("請填寫所有土地增值稅欄位");
+                        alert("請填寫所有土地增值稅欄位 (單位：萬元)");
                         return;
                     }
                     
-                    // 餘額 = 重購現值 - (賣出現值 - 已繳稅)
+                    // 公式：A = 重購現值, B = 賣出現值, C = 已繳稅
+                    // 餘額 = A - (B - C)
+                    // 若 餘額 > 0，則退還 餘額，但上限為 C
+                    
                     let balance = this.new_land_val - (this.old_land_val - this.old_land_tax);
                     
                     if (balance <= 0) {
