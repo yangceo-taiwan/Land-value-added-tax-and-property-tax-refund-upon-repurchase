@@ -20,14 +20,47 @@
         }
 
         * { box-sizing: border-box; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f4f6f7; margin: 0; padding: 0; padding-bottom: 100px; color: #333; line-height: 1.6; }
+        
+        /* --- Nexus Protection: 禁止選取與拖曳 --- */
+        body { 
+            font-family: 'Noto Sans TC', sans-serif; 
+            background-color: #f4f6f7; 
+            margin: 0; 
+            padding: 0; 
+            padding-bottom: 100px; 
+            color: #333; 
+            line-height: 1.6;
+            
+            /* 禁止文字選取 (讓複製變得困難) */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* 允許輸入框內的文字被選取，否則用戶無法修改數字 */
+        input {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        /* 禁止圖片拖曳 */
+        img {
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            pointer-events: none; /* 如果不需要點擊圖片，這行最強力 */
+        }
 
         /* --- Header --- */
         .main-header {
             background: #FFF; padding: 20px; text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-top: 5px solid var(--brand-gold); margin-bottom: 20px;
         }
-        .logo-group img { height: 60px; margin: 0 10px; vertical-align: middle; }
+        .logo-group img { height: 60px; margin: 0 10px; vertical-align: middle; pointer-events: none; }
         .main-header h1 { font-size: 1.8rem; color: var(--brand-dark); margin: 10px 0 5px; font-weight: 800; letter-spacing: 1px; }
         .main-header .subtitle { color: #666; font-size: 1rem; }
 
@@ -113,7 +146,7 @@
         }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
     <header class="main-header">
         <div class="logo-group">
@@ -301,6 +334,35 @@
                 }
             }
         });
+    </script>
+
+    <script>
+        // 1. 禁止右鍵選單
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // 2. 禁止開發者工具快捷鍵 (F12, Ctrl+Shift+I, Ctrl+U 等)
+        document.onkeydown = function(e) {
+            // F12
+            if(e.keyCode == 123) {
+                return false;
+            }
+            // Ctrl+Shift+I (開啟開發者工具)
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)){
+                return false;
+            }
+            // Ctrl+Shift+J (開啟控制台)
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)){
+                return false;
+            }
+            // Ctrl+Shift+C (選取元素)
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)){
+                return false;
+            }
+            // Ctrl+U (檢視原始碼)
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)){
+                return false;
+            }
+        }
     </script>
 </body>
 </html>
