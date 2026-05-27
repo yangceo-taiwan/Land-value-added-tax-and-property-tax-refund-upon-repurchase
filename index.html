@@ -161,23 +161,59 @@
 </head>
 <body oncontextmenu="return false;">
 
-<div id="nexus-auth-gate" class="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-[#0F2E46] to-[#162a3b] text-white fixed inset-0 z-[9999]" style="display: flex;">
-    <div class="bg-white text-gray-800 rounded-2xl shadow-2xl p-8 w-full max-w-sm text-center transform transition-all relative overflow-hidden">
+<div id="nexus-auth-gate" class="min-h-screen flex flex-col items-center justify-center p-5 bg-gradient-to-b from-[#0F2E46] to-[#162a3b] text-white fixed inset-0 z-[9999]" style="display: flex;">
+    <div class="bg-white text-gray-800 rounded-2xl shadow-2xl p-6 w-full max-w-md text-center transform transition-all relative overflow-hidden">
         <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#C5A065] opacity-10 rounded-full blur-2xl"></div>
         <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-[#C5A065] shadow-inner">
             <i class="fas fa-shield-alt text-3xl text-[#C5A065]"></i>
         </div>
-        <h2 class="text-2xl font-bold text-[#0F2E46] mb-2" style="margin:10px 0;">宏國專屬試算系統</h2>
-        <p class="text-sm text-gray-500 mb-6 leading-relaxed">
-            本系統為宏國地政內部高階工具。<br>為保障服務品質，請透過官方帳號驗證身分。
+
+        <h2 class="text-2xl font-bold text-[#0F2E46] mb-2" style="margin:10px 0;">重購退稅試算系統</h2>
+        <p class="text-sm text-gray-500 mb-5 leading-relaxed">
+            本工具提供宏國地政｜易丞地政官方好友使用。<br>
+            請先完成 LINE 好友驗證，即可立即開啟試算。
         </p>
-        <div id="auth-error-msg" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600 font-bold flex items-start gap-2 text-left" style="display: none;">
-            <i class="fas fa-exclamation-circle mt-0.5"></i>
+
+        <div id="auth-error-msg" class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 font-bold flex items-start gap-2 text-left" style="display: none;">
+            <i class="fas fa-circle-info mt-0.5 text-amber-600"></i>
             <span id="auth-error-text"></span>
         </div>
-        <button onclick="loginWithLine()" class="w-full btn-line-solid rounded-xl py-4 flex items-center justify-center font-bold text-base shadow-lg transform transition active:scale-95 hover:shadow-xl cursor-pointer">
-            <i class="fab fa-line text-2xl mr-2"></i> 使用 LINE 登入並解鎖
-        </button>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-left mb-4">
+            <div class="text-sm font-black text-[#0F2E46] mb-3 flex items-center gap-2">
+                <i class="fab fa-line text-[#06C755] text-lg"></i>
+                第一次使用請照這 2 步驟
+            </div>
+            <ol class="text-xs text-slate-600 font-bold leading-6 list-decimal pl-5">
+                <li>先點「加入官方好友」，完成加入或解除封鎖。</li>
+                <li>回到本頁後，點「我已加入，立即使用」。</li>
+            </ol>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3">
+            <button onclick="openOfficialLine()" class="w-full rounded-xl py-4 flex items-center justify-center font-black text-base shadow-lg transform transition active:scale-95 hover:shadow-xl cursor-pointer" style="background:#06C755;color:white;border:none;">
+                <i class="fab fa-line text-2xl mr-2"></i> 加入官方好友
+            </button>
+
+            <button onclick="verifyAfterFriend()" class="w-full rounded-xl py-4 flex items-center justify-center font-black text-base shadow-lg transform transition active:scale-95 hover:shadow-xl cursor-pointer" style="background:#0F2E46;color:white;border:none;">
+                <i class="fas fa-unlock-keyhole mr-2"></i> 我已加入，立即使用
+            </button>
+
+            <button onclick="loginWithLine()" class="w-full rounded-xl py-3 flex items-center justify-center font-bold text-sm cursor-pointer" style="background:#f8fafc;color:#475569;border:1px solid #e2e8f0;">
+                我本來就是好友，直接 LINE 授權
+            </button>
+        </div>
+
+        <details class="mt-4 text-left bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <summary class="cursor-pointer p-3 text-xs font-black text-slate-600 flex items-center justify-between">
+                加入後還是不能用？
+            </summary>
+            <div class="px-3 pb-3 text-xs leading-6 text-slate-500 font-bold">
+                請確認：① 已加入官方好友 ② 沒有封鎖官方帳號 ③ 加入後有回到本頁按「我已加入，立即使用」。<br>
+                若 LINE 畫面沒有跳出，請改用手機 LINE 內建瀏覽器開啟本工具。
+            </div>
+        </details>
+
         <div class="text-[10px] text-gray-400 mt-4">
             <i class="fas fa-lock mr-1"></i> 經由 LINE OAuth 2.0 安全授權
         </div>
@@ -318,34 +354,63 @@
 
 <script>
     // ==========================================
-    // 🛡️ Nexus SSO 企業級門禁系統邏輯
+    // 🛡️ Nexus SSO 企業級門禁系統邏輯｜LINE 好友門禁優化版
     // ==========================================
     const gasAuthUrl = "https://script.google.com/macros/s/AKfycbwiIbmZWvNkOZW1wPBSZT1b5MKcfeeU8LtfqOiPZE0gN0VPkxJDguhKmb6rTJnSWWBnCA/exec";
+    const officialLineUrl = "https://line.me/R/ti/p/@604gpqef";
+    const authStorageKey = "hg_line_auth";
+
+    function showAuthMessage(message) {
+        const errorMsg = document.getElementById('auth-error-msg');
+        const errorText = document.getElementById('auth-error-text');
+        if (!errorMsg || !errorText) return;
+        errorText.innerText = message;
+        errorMsg.style.display = 'flex';
+    }
+
+    function cleanAuthQuery() {
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
 
     function initAuth() {
         const urlParams = new URLSearchParams(window.location.search);
         const authStatus = urlParams.get('nexus_auth');
         const authGate = document.getElementById('nexus-auth-gate');
         const mainContent = document.getElementById('main-content');
-        const errorMsg = document.getElementById('auth-error-msg');
-        const errorText = document.getElementById('auth-error-text');
 
         let isUnlocked = false;
 
-        if (authStatus === 'success') {
-            localStorage.setItem('hg_line_auth', 'true');
-            isUnlocked = true;
-            window.history.replaceState({}, document.title, window.location.pathname);
-        } else if (authStatus === 'failed_not_friend') {
-            localStorage.removeItem('hg_line_auth');
-            isUnlocked = false;
-            errorText.innerText = "授權失敗：系統偵測到您尚未加入好友或已封鎖官方帳號。請重新登入並務必勾選加入好友。";
-            errorMsg.style.display = 'flex';
-            window.history.replaceState({}, document.title, window.location.pathname);
-        } else {
-            if (localStorage.getItem('hg_line_auth') === 'true') {
+        try {
+            if (authStatus === 'success') {
+                localStorage.setItem(authStorageKey, 'true');
                 isUnlocked = true;
+                cleanAuthQuery();
+            } else if (authStatus === 'failed_not_friend') {
+                localStorage.removeItem(authStorageKey);
+                isUnlocked = false;
+                showAuthMessage("系統尚未確認您已加入官方好友。請先點「加入官方好友」，完成加入或解除封鎖後，再回來點「我已加入，立即使用」。");
+                cleanAuthQuery();
+            } else if (authStatus === 'cancel') {
+                localStorage.removeItem(authStorageKey);
+                isUnlocked = false;
+                showAuthMessage("您剛剛取消了 LINE 授權。若要使用試算工具，請重新進行 LINE 授權。");
+                cleanAuthQuery();
+            } else if (authStatus === 'error') {
+                localStorage.removeItem(authStorageKey);
+                isUnlocked = false;
+                showAuthMessage("LINE 驗證暫時未完成。請先確認已加入官方好友，再重新驗證一次。");
+                cleanAuthQuery();
+            } else if (window.location.protocol === 'file:') {
+                // 本機測試用：直接開 HTML 檔案時放行，避免測試版卡在授權頁。
+                isUnlocked = true;
+            } else {
+                isUnlocked = localStorage.getItem(authStorageKey) === 'true';
             }
+        } catch (error) {
+            isUnlocked = false;
+            showAuthMessage("瀏覽器暫時無法儲存驗證狀態，請改用 LINE 內建瀏覽器或 Chrome 重新開啟。");
         }
 
         if (isUnlocked) {
@@ -359,9 +424,23 @@
         }
     }
 
-    function loginWithLine() {
+    function openOfficialLine() {
+        window.open(officialLineUrl, '_blank');
+        showAuthMessage("已開啟官方好友頁。加入或解除封鎖後，請回到本頁點「我已加入，立即使用」。");
+    }
+
+    function buildAuthRedirectUrl() {
         const currentBaseUrl = window.location.origin + window.location.pathname;
-        window.location.href = `${gasAuthUrl}?state=${encodeURIComponent(currentBaseUrl)}`;
+        return `${gasAuthUrl}?state=${encodeURIComponent(currentBaseUrl)}`;
+    }
+
+    function loginWithLine() {
+        window.location.href = buildAuthRedirectUrl();
+    }
+
+    function verifyAfterFriend() {
+        showAuthMessage("正在重新確認 LINE 好友狀態，請依畫面完成授權。");
+        window.location.href = buildAuthRedirectUrl();
     }
 
     // 啟動門禁系統
